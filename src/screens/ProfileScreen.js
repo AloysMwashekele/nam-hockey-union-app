@@ -7,38 +7,47 @@ import Button from '../components/Button';
 import Colors from '../constants/colors';
 import { AuthContext } from '../context/AuthContext';
 
+// ProfileScreen: displays current user details and provides account actions
 const ProfileScreen = ({ navigation }) => {
+  // Access logged-in user info and logout function
   const { user, signOut } = useContext(AuthContext);
+  // Loading state indicates when logout is in progress
   const [isLoading, setIsLoading] = useState(false);
 
+  // Handler for logout button press
   const handleLogout = async () => {
     try {
-      setIsLoading(true);
-      await signOut();
-      // No need to navigate - the AuthContext will handle updating the auth state
-      // which will cause the app to show the login screen
+      setIsLoading(true);                   // Show loading indicator on logout
+      await signOut();                      // Invoke context signOut to clear session
+      // AuthContext will redirect to login screen automatically
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error('Error logging out:', error);  // Debug any logout errors
       alert('Failed to logout. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);                  // Hide loading indicator
     }
   };
 
-  // Use the user data from context or fallback to default values
+  // Provide fallback values if user data is not available
   const userData = user || {
-    username: 'Guest User',
-    email: 'guest@example.com',
-    phone: 'Not available',
-    team: 'Not assigned',
-    position: 'Not assigned',
-    memberSince: new Date().getFullYear().toString(),
-    profileImage: null, // We'll use a placeholder
+    username: 'Guest User',                // Default display name
+    email: 'guest@example.com',            // Placeholder email
+    phone: 'Not available',                // Placeholder phone
+    team: 'Not assigned',                  // Placeholder team
+    position: 'Not assigned',              // Placeholder position
+    memberSince: new Date().getFullYear().toString(), // Current year
+    profileImage: null,                    // No image by default
   };
 
+  // Reusable component to render an icon with label and value
   const InfoItem = ({ icon, label, value }) => (
     <View style={styles.infoItem}>
-      <MaterialCommunityIcons name={icon} size={20} color={Colors.primary} style={styles.infoIcon} />
+      <MaterialCommunityIcons
+        name={icon}
+        size={20}
+        color={Colors.primary}
+        style={styles.infoIcon}
+      />
       <View>
         <Text style={styles.infoLabel}>{label}</Text>
         <Text style={styles.infoValue}>{value}</Text>
@@ -48,22 +57,26 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* HEADER: title and settings button */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
         <IconButton 
           icon="cog-outline" 
           size={24} 
-          onPress={() => {}} 
+          onPress={() => { /* TODO: navigate to SettingsScreen */ }} 
           color={Colors.text}
         />
       </View>
-      
+      {/* MAIN CONTENT: scrollable profile sections */}
       <ScrollView style={styles.content}>
+        {/* PROFILE SECTION: avatar and basic info */}
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
             {userData.profileImage ? (
+              // If user uploaded an image, display it
               <Avatar.Image size={80} source={{ uri: userData.profileImage }} />
             ) : (
+              // Otherwise show default avatar icon
               <Avatar.Icon size={80} icon="account" color={Colors.background} style={styles.avatar} />
             )}
           </View>
@@ -74,6 +87,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
+        {/* CONTACT INFO CARD */}
         <Card style={styles.card}>
           <Card.Content>
             <Text style={styles.sectionTitle}>Contact Information</Text>
@@ -83,6 +97,7 @@ const ProfileScreen = ({ navigation }) => {
           </Card.Content>
         </Card>
 
+        {/* HOCKEY INFO CARD */}
         <Card style={styles.card}>
           <Card.Content>
             <Text style={styles.sectionTitle}>Hockey Information</Text>
@@ -92,16 +107,17 @@ const ProfileScreen = ({ navigation }) => {
           </Card.Content>
         </Card>
 
+        {/* ACTION BUTTONS: edit, change password, logout */}
         <View style={styles.actionsContainer}>
           <Button
             title="Edit Profile"
-            onPress={() => {}}
+            onPress={() => { /* TODO: navigate to EditProfileScreen */ }}
             mode="contained"
             style={styles.actionButton}
           />
           <Button
             title="Change Password"
-            onPress={() => {}}
+            onPress={() => { /* TODO: navigate to ChangePasswordScreen */ }}
             mode="outlined"
             style={styles.actionButton}
           />
@@ -110,7 +126,7 @@ const ProfileScreen = ({ navigation }) => {
             onPress={handleLogout}
             mode="contained"
             style={[styles.actionButton, styles.logoutButton]}
-            loading={isLoading}
+            loading={isLoading}                 // Show spinner while logging out
           />
         </View>
       </ScrollView>
@@ -118,20 +134,21 @@ const ProfileScreen = ({ navigation }) => {
   );
 };
 
+// Styles for layout and visual consistency
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.background,    // Screen background color
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'row',                  // Horizontal layout
+    justifyContent: 'space-between',       // Title left, button right
+    alignItems: 'center',                  // Vertically center elements
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: Colors.border,      // Subtle bottom border
   },
   headerTitle: {
     fontSize: 20,
@@ -145,15 +162,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surface,       // Card-like background
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   avatarContainer: {
-    marginRight: 16,
+    marginRight: 16,                       // Space between avatar and info
   },
   avatar: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primary,      // Default avatar background color
   },
   profileInfo: {
     flex: 1,
@@ -174,9 +191,8 @@ const styles = StyleSheet.create({
     color: Colors.textLight,
   },
   card: {
-    margin: 16,
-    marginTop: 8,
-    marginBottom: 8,
+    marginHorizontal: 16,
+    marginVertical: 8,
     borderRadius: 12,
     backgroundColor: Colors.surface,
     borderWidth: 1,
@@ -199,7 +215,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   infoIcon: {
-    marginRight: 16,
+    marginRight: 16,                       // Space between icon and text
   },
   infoLabel: {
     fontSize: 12,
@@ -215,10 +231,10 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   actionButton: {
-    marginBottom: 12,
+    marginBottom: 12,                     // Space between buttons
   },
   logoutButton: {
-    backgroundColor: Colors.error,
+    backgroundColor: Colors.error,        // Highlight logout in red
   },
 });
 
