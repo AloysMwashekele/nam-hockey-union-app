@@ -116,18 +116,6 @@ const TeamDetailsScreen = ({ route, navigation }) => {
             <Ionicons name="trophy-outline" size={20} color={Colors.primary} />
             <Text style={styles.infoText}>Division: {team.division}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
-            <Text style={styles.infoText}>Founded: {team.founded}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Ionicons name="location-outline" size={20} color={Colors.primary} />
-            <Text style={styles.infoText}>Home Ground: {team.homeGround}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Ionicons name="person-outline" size={20} color={Colors.primary} />
-            <Text style={styles.infoText}>Coach: {team.coach}</Text>
-          </View>
         </Card>
         
         <Card style={styles.infoCard}>
@@ -142,10 +130,6 @@ const TeamDetailsScreen = ({ route, navigation }) => {
           </View>
         </Card>
         
-        <Card style={styles.infoCard}>
-          <Text style={styles.cardTitle}>About</Text>
-          <Text style={styles.description}>{team.description}</Text>
-        </Card>
         
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Players</Text>
