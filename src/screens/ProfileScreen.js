@@ -93,19 +93,12 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.sectionTitle}>Contact Information</Text>
             <Divider style={styles.divider} />
             <InfoItem icon="email-outline" label="Email" value={userData.email} />
-            <InfoItem icon="phone-outline" label="Phone" value={userData.phone} />
+           
           </Card.Content>
         </Card>
 
         {/* HOCKEY INFO CARD */}
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text style={styles.sectionTitle}>Hockey Information</Text>
-            <Divider style={styles.divider} />
-            <InfoItem icon="account-group-outline" label="Team" value={userData.team} />
-            <InfoItem icon="run-fast" label="Position" value={userData.position} />
-          </Card.Content>
-        </Card>
+       
 
         {/* ACTION BUTTONS: edit, change password, logout */}
         <View style={styles.actionsContainer}>
@@ -115,12 +108,7 @@ const ProfileScreen = ({ navigation }) => {
             mode="contained"
             style={styles.actionButton}
           />
-          <Button
-            title="Change Password"
-            onPress={() => { /* TODO: navigate to ChangePasswordScreen */ }}
-            mode="outlined"
-            style={styles.actionButton}
-          />
+         
           <Button
             title="Logout"
             onPress={handleLogout}
