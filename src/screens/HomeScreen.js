@@ -82,7 +82,7 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.quickActionText}>Register Player</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity 
+          {/* <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('EventsTab', { screen: 'EventRegistration' })}
           >
@@ -90,7 +90,7 @@ const HomeScreen = ({ navigation }) => {
               <Ionicons name="calendar" size={24} color={Colors.primary} />
             </View>
             <Text style={styles.quickActionText}>Register for Event</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* Stats Overview
