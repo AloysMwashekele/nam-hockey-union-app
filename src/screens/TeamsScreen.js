@@ -112,7 +112,7 @@ const TeamsScreen = ({ navigation }) => {
             </View>
           </View>
           
-          <View style={styles.teamActions}>
+          {/* <View style={styles.teamActions}>
             <TouchableOpacity 
               style={styles.actionButton}
               onPress={() => navigation.navigate('PlayerList', { teamId: item.id })}
@@ -123,12 +123,12 @@ const TeamsScreen = ({ navigation }) => {
             
             <TouchableOpacity 
               style={styles.actionButton}
-              onPress={() => navigation.navigate('PlayerRegistration', { teamId: item.id })}
+              onPress={() => navigation.navigate('PlayerRegistrationScreen', { teamId: item.id })}
             >
               <Ionicons name="person-add" size={16} color={Colors.primary} />
               <Text style={styles.actionButtonText}>Add Player</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </Card>
     );
