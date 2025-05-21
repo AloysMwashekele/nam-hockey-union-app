@@ -88,19 +88,7 @@ const PlayerDetailsScreen = ({ route, navigation }) => {
     );
   }
   
-  // Player stats - using mock data since we don't store this in our database yet
-  const playerStats = {
-    matches: 45,
-    goals: 28,
-    assists: 12,
-    yellowCards: 3,
-    redCards: 0,
-  };
-  
-  // Player bio - using mock data or fallback
-  const playerBio = player.bio || 
-    `${player.firstName} ${player.lastName} is a ${player.position.toLowerCase()} player for ${teamName}. ` +
-    'They are a valuable member of the team with great skills and dedication to the sport.';
+
   
   return (
     <ScrollView style={styles.screen}>
@@ -161,36 +149,7 @@ const PlayerDetailsScreen = ({ route, navigation }) => {
           </View>
         </Card>
         
-        <Card style={styles.infoCard}>
-          <Text style={styles.cardTitle}>Player Statistics</Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{playerStats.matches}</Text>
-              <Text style={styles.statLabel}>Matches</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{playerStats.goals}</Text>
-              <Text style={styles.statLabel}>Goals</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{playerStats.assists}</Text>
-              <Text style={styles.statLabel}>Assists</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{playerStats.yellowCards}</Text>
-              <Text style={styles.statLabel}>Yellow Cards</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{playerStats.redCards}</Text>
-              <Text style={styles.statLabel}>Red Cards</Text>
-            </View>
-          </View>
-        </Card>
-        
-        <Card style={styles.infoCard}>
-          <Text style={styles.cardTitle}>Biography</Text>
-          <Text style={styles.bio}>{playerBio}</Text>
-        </Card>
+      
         
         <View style={styles.buttonContainer}>
           <Button
