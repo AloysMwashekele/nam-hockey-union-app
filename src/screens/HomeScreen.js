@@ -93,7 +93,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Stats Overview */}
+        {/* Stats Overview
         <View style={styles.statsContainer}>
           <Card style={styles.statsCard}>
             <Card.Content>
@@ -136,7 +136,7 @@ const HomeScreen = ({ navigation }) => {
               </View>
             </Card.Content>
           </Card>
-        </View>
+        </View> */}
 
         {/* Upcoming Events */}
         <View style={styles.sectionContainer}>
