@@ -1,87 +1,94 @@
+// Import necessary modules and components from React and React Native
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Text, TextInput, Surface, Divider, Button as PaperButton, Menu, Modal, Portal, RadioButton, List } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import Button from '../components/Button';
-import Colors from '../constants/colors';
-import { savePlayer, getTeams } from '../utils/storage';
+// Import custom components and utilities
+import Button from '../components/Button'; // (Unused in this file)
+import Colors from '../constants/colors'; // Custom color constants
+import { savePlayer, getTeams } from '../utils/storage'; // Storage utility functions
 
+// Main component for the player registration screen
 const PlayerRegistrationScreen = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  
-  // Gender state
-  const [gender, setGender] = useState('Male');
-  const [showGenderMenu, setShowGenderMenu] = useState(false);
-  const genderOptions = ['Male', 'Female'];
-  
-  // Team state
-  const [team, setTeam] = useState('');
-  const [teamName, setTeamName] = useState('Select a team');
-  const [showTeamMenu, setShowTeamMenu] = useState(false);
-  const [teamOptions, setTeamOptions] = useState([]);
-  
-  // Position state
-  const [position, setPosition] = useState('Forward');
-  const [showPositionMenu, setShowPositionMenu] = useState(false);
-  const positionOptions = ['Forward', 'Midfielder', 'Defender', 'Goalkeeper'];
-  
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Load teams from storage
+  // State variables for form inputs
+  const [firstName, setFirstName] = useState(''); // Player's first name
+  const [lastName, setLastName] = useState('');   // Player's last name
+  const [dateOfBirth, setDateOfBirth] = useState(new Date()); // Player's date of birth
+  const [showDatePicker, setShowDatePicker] = useState(false); // Controls visibility of date picker
+
+  // Gender selection state
+  const [gender, setGender] = useState('Male'); // Default gender
+  const [showGenderMenu, setShowGenderMenu] = useState(false); // Controls gender dropdown visibility
+  const genderOptions = ['Male', 'Female']; // Gender options
+
+  // Team selection state
+  const [team, setTeam] = useState(''); // Selected team ID
+  const [teamName, setTeamName] = useState('Select a team'); // Displayed team name
+  const [showTeamMenu, setShowTeamMenu] = useState(false); // Controls team dropdown visibility
+  const [teamOptions, setTeamOptions] = useState([]); // List of available teams
+
+  // Position selection state
+  const [position, setPosition] = useState('Forward'); // Default player position
+  const [showPositionMenu, setShowPositionMenu] = useState(false); // Controls position dropdown visibility
+  const positionOptions = ['Forward', 'Midfielder', 'Defender', 'Goalkeeper']; // Available positions
+
+  // Contact information
+  const [email, setEmail] = useState(''); // Player email
+  const [phone, setPhone] = useState(''); // Player phone number
+  const [isLoading, setIsLoading] = useState(false); // Loading state for form submission
+
+  // Load team options from local storage on component mount
   useEffect(() => {
     const loadTeams = async () => {
       try {
-        const storedTeams = await getTeams();
-        // Format teams for dropdown
+        const storedTeams = await getTeams(); // Fetch teams from storage
         const formattedTeams = storedTeams.map(team => ({
           name: team.name,
           id: team.id
         }));
-        setTeamOptions(formattedTeams);
+        setTeamOptions(formattedTeams); // Set formatted teams to dropdown options
       } catch (error) {
-        console.error('Error loading teams:', error);
+        console.error('Error loading teams:', error); // Log if something goes wrong
       }
     };
 
-    loadTeams();
-  }, []);
-  
-  // Update team name when team id changes
+    loadTeams(); // Call the loader
+  }, []); // Only run once on mount
+
+  // Automatically update team display name when a team ID is selected
   useEffect(() => {
     if (team) {
       const selectedTeam = teamOptions.find(t => t.id === team);
       if (selectedTeam) {
-        setTeamName(selectedTeam.name);
+        setTeamName(selectedTeam.name); // Update displayed name
       }
     }
-  }, [team, teamOptions]);
+  }, [team, teamOptions]); // Runs when either team or teamOptions changes
 
+  // Handle date picker change
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || dateOfBirth;
-    setShowDatePicker(false);
-    setDateOfBirth(currentDate);
+    const currentDate = selectedDate || dateOfBirth; // Default to previous date if cancelled
+    setShowDatePicker(false); // Close picker
+    setDateOfBirth(currentDate); // Update state
   };
 
+  // Form submission handler
   const handleSubmit = async () => {
+    // Validate required fields
     if (!firstName || !lastName || !team || !email || !phone) {
       Alert.alert('Validation Error', 'Please fill in all required fields');
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading(true); // Show loading indicator
 
     try {
       const playerData = {
         firstName,
         lastName,
-        dateOfBirth: dateOfBirth.toISOString().split('T')[0],
+        dateOfBirth: dateOfBirth.toISOString().split('T')[0], // Format DOB as yyyy-mm-dd
         gender,
         teamId: team,
         position,
@@ -89,8 +96,8 @@ const PlayerRegistrationScreen = ({ navigation }) => {
         phone,
       };
 
-      await savePlayer(playerData);
-      
+      await savePlayer(playerData); // Save player data
+
       setIsLoading(false);
       Alert.alert(
         'Success',
@@ -98,33 +105,38 @@ const PlayerRegistrationScreen = ({ navigation }) => {
         [
           {
             text: 'OK',
-            onPress: () => navigation.goBack(),
+            onPress: () => navigation.goBack(), // Navigate back to previous screen
           },
         ]
       );
     } catch (error) {
       setIsLoading(false);
-      Alert.alert('Error', 'Failed to save player. Please try again.');
-      console.error('Error saving player:', error);
+      Alert.alert('Error', 'Failed to save player. Please try again.'); // Show error
+      console.error('Error saving player:', error); // Log error
     }
   };
 
+  // Main UI rendering
   return (
     <KeyboardAvoidingView 
       style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={100}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Adjust keyboard behavior
+      keyboardVerticalOffset={100} // Space between keyboard and form
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Header */}
         <Surface style={styles.headerSection} elevation={1}>
           <Text variant="headlineSmall" style={styles.title}>Player Registration</Text>
           <Text variant="bodyMedium" style={styles.subtitle}>Register as a player in the Namibia Hockey Union</Text>
         </Surface>
 
+        {/* Form container */}
         <View style={styles.container}>
+          {/* Personal Info Section */}
           <Text variant="titleMedium" style={styles.formSectionTitle}>Personal Information</Text>
           <Divider style={styles.divider} />
 
+          {/* First Name Input */}
           <View style={styles.formGroup}>
             <TextInput
               label="First Name *"
@@ -137,6 +149,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             />
           </View>
 
+          {/* Last Name Input */}
           <View style={styles.formGroup}>
             <TextInput
               label="Last Name *"
@@ -149,6 +162,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             />
           </View>
 
+          {/* Date of Birth Picker */}
           <View style={styles.formGroup}>
             <Text variant="bodyMedium" style={styles.label}>Date of Birth *</Text>
             <PaperButton
@@ -168,6 +182,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             )}
           </View>
 
+          {/* Gender Dropdown */}
           <View style={styles.formGroup}>
             <Text variant="bodyMedium" style={styles.label}>Gender *</Text>
             <Menu
@@ -199,6 +214,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             </Menu>
           </View>
 
+          {/* Team Dropdown */}
           <View style={styles.formGroup}>
             <Text variant="bodyMedium" style={styles.label}>Team *</Text>
             <Menu
@@ -235,6 +251,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             </Menu>
           </View>
 
+          {/* Position Dropdown */}
           <View style={styles.formGroup}>
             <Text variant="bodyMedium" style={styles.label}>Position *</Text>
             <Menu
@@ -266,9 +283,11 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             </Menu>
           </View>
 
+          {/* Contact Info Section */}
           <Text variant="titleMedium" style={styles.formSectionTitle}>Contact Information</Text>
           <Divider style={styles.divider} />
 
+          {/* Email Input */}
           <View style={styles.formGroup}>
             <TextInput
               label="Email *"
@@ -283,6 +302,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             />
           </View>
 
+          {/* Phone Input */}
           <View style={styles.formGroup}>
             <TextInput
               label="Phone Number *"
@@ -296,6 +316,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
             />
           </View>
 
+          {/* Submit Button */}
           <PaperButton
             title="Register Player"
             onPress={handleSubmit}
@@ -310,6 +331,7 @@ const PlayerRegistrationScreen = ({ navigation }) => {
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -335,7 +357,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitle: {
-    color: Colors.background + 'CC', // Adding transparency
+    color: Colors.background + 'CC',
   },
   formSectionTitle: {
     fontWeight: 'bold',
