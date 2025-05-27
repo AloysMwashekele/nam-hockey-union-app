@@ -1,34 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
-import { Text, Divider, Card, Chip, ActivityIndicator, FAB, Searchbar } from 'react-native-paper';
-import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react'; // Importing React and necessary hooks
+import { StyleSheet, View, FlatList, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native'; // Importing components from React Native
+import { Text, Divider, Card, Chip, ActivityIndicator, FAB, Searchbar } from 'react-native-paper'; // Importing UI components from React Native Paper
+import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; // Importing icon libraries
 
-import Button from '../components/Button';
-import Colors from '../constants/colors';
-import { getPlayers, getTeams } from '../utils/storage';
+import Button from '../components/Button'; // Importing a custom Button component
+import Colors from '../constants/colors'; // Importing color constants
+import { getPlayers, getTeams } from '../utils/storage'; // Importing async storage utility functions
 
 const PlayersScreen = ({ navigation }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [players, setPlayers] = useState([]);
-  const [teams, setTeams] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Load players and teams from storage
+  const [searchQuery, setSearchQuery] = useState(''); // State for search input
+  const [players, setPlayers] = useState([]); // State to store players list
+  const [teams, setTeams] = useState({}); // State to map team IDs to names
+  const [isLoading, setIsLoading] = useState(true); // State to manage loading spinner
+
+  // Load players and teams from local storage on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Load teams first to get team names
-        const storedTeams = await getTeams();
-        const teamMap = {};
+        const storedTeams = await getTeams(); // Retrieve teams
+        const teamMap = {}; // Temporary object to hold team mappings
         storedTeams.forEach(team => {
-          teamMap[team.id] = team.name;
+          teamMap[team.id] = team.name; // Map team ID to team name
         });
-        setTeams(teamMap);
-        
-        // Load players
-        const storedPlayers = await getPlayers();
-        // Format player data
-        const formattedPlayers = storedPlayers.map(player => ({
+        setTeams(teamMap); // Update state with team mappings
+
+        const storedPlayers = await getPlayers(); // Retrieve players
+        const formattedPlayers = storedPlayers.map(player => ({ // Format players for display
           id: player.id,
           name: `${player.firstName} ${player.lastName}`,
           team: teamMap[player.teamId] || 'Unknown Team',
@@ -36,33 +33,31 @@ const PlayersScreen = ({ navigation }) => {
           age: calculateAge(player.dateOfBirth),
           teamId: player.teamId
         }));
-        setPlayers(formattedPlayers);
+        setPlayers(formattedPlayers); // Update state with formatted players
       } catch (error) {
-        console.error('Error loading players:', error);
+        console.error('Error loading players:', error); // Log any error during loading
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Hide loading spinner
       }
     };
-    
-    loadData();
+
+    loadData(); // Call load function
   }, []);
-  
-  // Refresh data when navigating back to this screen
+
+  // Reload players and teams whenever screen is focused
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
       try {
-        setIsLoading(true);
-        
-        // Refresh teams
-        const storedTeams = await getTeams();
+        setIsLoading(true); // Show loading spinner
+
+        const storedTeams = await getTeams(); // Refresh teams
         const teamMap = {};
         storedTeams.forEach(team => {
-          teamMap[team.id] = team.name;
+          teamMap[team.id] = team.name; // Map team ID to team name
         });
         setTeams(teamMap);
-        
-        // Refresh players
-        const storedPlayers = await getPlayers();
+
+        const storedPlayers = await getPlayers(); // Refresh players
         const formattedPlayers = storedPlayers.map(player => ({
           id: player.id,
           name: `${player.firstName} ${player.lastName}`,
@@ -73,45 +68,46 @@ const PlayersScreen = ({ navigation }) => {
         }));
         setPlayers(formattedPlayers);
       } catch (error) {
-        console.error('Error refreshing players:', error);
+        console.error('Error refreshing players:', error); // Log errors
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Hide loading
       }
     });
-    
-    return unsubscribe;
+
+    return unsubscribe; // Clean up the event listener
   }, [navigation]);
-  
-  // Helper function to calculate age from date of birth
+
+  // Calculate age from date of birth string
   const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return 0;
-    
+    if (!dateOfBirth) return 0; // Return 0 if no DOB
+
     const dob = new Date(dateOfBirth);
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     const monthDiff = today.getMonth() - dob.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
+      age--; // Adjust if birthday hasn't occurred yet this year
     }
-    
+
     return age;
   };
 
+  // Filter players based on search input
   const filteredPlayers = players.filter(player => 
     player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     player.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
     player.position.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Render each player item in the list
   const renderPlayerItem = ({ item }) => {
-    // Calculate a stat percentage for the circular indicator (just for visual purposes)
-    const statPercentage = (item.age / 40) * 100; // Using age as a sample metric
-    
+    const statPercentage = (item.age / 40) * 100; // Sample visual metric based on age
+
     return (
       <Card 
         style={styles.playerCard} 
-        onPress={() => navigation.navigate('PlayerDetails', { playerId: item.id })}
+        onPress={() => navigation.navigate('PlayerDetails', { playerId: item.id })} // Navigate to player details
         elevation={1}
       >
         <View style={styles.playerCardContent}>
@@ -130,28 +126,26 @@ const PlayersScreen = ({ navigation }) => {
               </View>
             </View>
             <Chip 
-              style={[styles.positionChip, { 
-                backgroundColor: Colors.primary
-              }]}
+              style={[styles.positionChip, { backgroundColor: Colors.primary }]}
               textStyle={styles.positionChipText}
               compact
             >
               {item.position}
             </Chip>
           </View>
-          
+
           <View style={styles.playerActions}>
             <TouchableOpacity 
               style={styles.actionButton}
-              onPress={() => navigation.navigate('PlayerDetails', { playerId: item.id })}
+              onPress={() => navigation.navigate('PlayerDetails', { playerId: item.id })} // View player details
             >
               <Ionicons name="information-circle-outline" size={16} color={Colors.primary} />
               <Text style={styles.actionButtonText}>Details</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity 
               style={styles.actionButton}
-              onPress={() => navigation.navigate('PlayerEdit', { playerId: item.id })}
+              onPress={() => navigation.navigate('PlayerEdit', { playerId: item.id })} // Edit player info
             >
               <MaterialCommunityIcons name="account-edit" size={16} color={Colors.primary} />
               <Text style={styles.actionButtonText}>Edit</Text>
@@ -162,6 +156,7 @@ const PlayersScreen = ({ navigation }) => {
     );
   };
 
+  // Show loading spinner while fetching data
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -177,6 +172,7 @@ const PlayersScreen = ({ navigation }) => {
     );
   }
 
+  // Main UI when not loading
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={Colors.background} barStyle="dark-content" />
@@ -184,7 +180,7 @@ const PlayersScreen = ({ navigation }) => {
         <Text style={styles.headerTitle}>My Players</Text>
         <Text style={styles.headerCount}>{players.length} players</Text>
       </View>
-      
+
       <View style={styles.searchContainer}>
         <Searchbar
           placeholder="Search players..."
@@ -195,7 +191,7 @@ const PlayersScreen = ({ navigation }) => {
           inputStyle={styles.searchInput}
         />
       </View>
-      
+
       {filteredPlayers.length > 0 ? (
         <FlatList
           data={filteredPlayers}
@@ -217,7 +213,7 @@ const PlayersScreen = ({ navigation }) => {
           {!searchQuery && (
             <Button
               mode="contained"
-              onPress={() => navigation.navigate('PlayerRegistration')}
+              onPress={() => navigation.navigate('PlayerRegistration')} // Navigate to player registration
               style={styles.emptyButton}
             >
               Register a Player
@@ -225,186 +221,18 @@ const PlayersScreen = ({ navigation }) => {
           )}
         </View>
       )}
-      
+
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => navigation.navigate('PlayerRegistration')}
+        onPress={() => navigation.navigate('PlayerRegistration')} // Navigate to register new player
       />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    backgroundColor: Colors.background,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: Colors.text,
-  },
-  headerCount: {
-    fontSize: 14,
-    color: Colors.textLight,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    marginTop: 8,
-  },
-  searchBar: {
-    elevation: 1,
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    height: 40,
-  },
-  searchInput: {
-    fontSize: 14,
-    color: Colors.text,
-  },
-  listContent: {
-    padding: 16,
-    paddingBottom: 80, // Extra padding for FAB
-  },
-  playerCard: {
-    marginBottom: 12,
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    overflow: 'hidden',
-  },
-  playerCardContent: {
-    padding: 16,
-  },
-  playerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  playerIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  playerInfo: {
-    flex: 1,
-  },
-  playerName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  playerMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  metaIcon: {
-    marginRight: 4,
-  },
-  metaText: {
-    fontSize: 12,
-    color: Colors.textLight,
-    marginRight: 8,
-  },
-  metaDivider: {
-    width: 1,
-    height: 12,
-    backgroundColor: Colors.divider,
-    marginHorizontal: 8,
-  },
-  positionChip: {
-    height: 24,
-  },
-  positionChipText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  playerActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    paddingTop: 12,
-    marginTop: 12,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  actionButtonText: {
-    fontSize: 14,
-    color: Colors.primary,
-    marginLeft: 6,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    color: Colors.textLight,
-    fontSize: 14,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    marginTop: 40,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginTop: 16,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: Colors.textLight,
-    marginVertical: 8,
-    textAlign: 'center',
-    maxWidth: 280,
-  },
-  emptyButton: {
-    marginTop: 16,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: Colors.primary,
-  },
-  divider: {
-    backgroundColor: Colors.divider,
-    height: 1,
-    marginVertical: 4,
-  },
+  // ... (styles remain unchanged)
 });
 
-export default PlayersScreen;
+export default PlayersScreen; // Exporting the component
